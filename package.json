@@ -1,0 +1,20 @@
+{
+  "name": "npu-asset-storage",
+  "version": "1.0.0",
+  "description": "ระบบจัดเก็บข้อมูลครุภัณฑ์ออนไลน์พร้อมเซิร์ฟเวอร์บันทึกข้อมูล JSON",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "tunnel": "npx --yes cloudflared tunnel --url http://127.0.0.1:4173"
+  },
+  "keywords": [
+    "asset",
+    "inventory",
+    "thai"
+  ],
+  "author": "",
+  "license": "MIT"
+}

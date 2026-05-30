@@ -1,0 +1,10 @@
+node_modules/
+npm-debug.log*
+.DS_Store
+.env
+*.log
+FULL_CODE.md
+*.zip
+gh-device.json
+gh-auth.out.log
+gh-auth.err.log
