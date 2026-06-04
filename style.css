@@ -443,6 +443,22 @@ td {
     font-size: 20px;
   }
 
+  .header-btns {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  #loginBtn,
+  #logoutBtn {
+    width: auto;
+    min-height: 34px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1.15;
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }
