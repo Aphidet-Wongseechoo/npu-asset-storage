@@ -446,7 +446,7 @@ td {
   .header-btns {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   #loginBtn,
