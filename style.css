@@ -51,11 +51,14 @@ body {
 }
 
 header {
-  background: linear-gradient(90deg, #ffffff, #fff7db);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, .96), rgba(255, 247, 219, .88) 44%, rgba(255, 247, 219, .42)),
+    url("assets/header-bg.png") center right / cover no-repeat;
   padding: 18px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 132px;
   border-bottom: 4px solid var(--primary);
   box-shadow: 0 5px 20px rgba(0, 0, 0, .05);
   position: sticky;
@@ -96,11 +99,13 @@ header {
 .logo-text h1 {
   font-size: 25px;
   color: #6b4f00;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .65);
 }
 
 .logo-text p {
-  color: #777;
+  color: #5f6470;
   font-size: 14px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .55);
 }
 
 button {
@@ -429,9 +434,12 @@ td {
 
 @media (max-width: 768px) {
   header {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 247, 219, .86)),
+      url("assets/header-bg.png") center right / cover no-repeat;
     flex-direction: column;
     gap: 18px;
-    padding: 18px;
+    padding: 22px 18px 18px;
     text-align: center;
   }
 
@@ -454,13 +462,31 @@ td {
 
   #loginBtn,
   #logoutBtn {
-    width: auto;
-    min-height: 32px;
-    padding: 7px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    line-height: 1.15;
-    white-space: nowrap;
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  #loginBtn::before,
+  #logoutBtn::before {
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  #loginBtn::before {
+    content: "🔐";
+  }
+
+  #logoutBtn::before {
+    content: "🚪";
   }
 
   .grid {
