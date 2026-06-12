@@ -46,44 +46,129 @@
   </div>
 
   <main class="container">
-    <section class="card" id="adminForm">
+    <section class="card form-card" id="adminForm">
       <div class="card-title">
         <div class="icon">➕</div>
-        <h2 id="formTitle">เพิ่มข้อมูลครุภัณฑ์</h2>
+        <div>
+          <h2 id="formTitle">เพิ่มข้อมูลครุภัณฑ์</h2>
+          <p class="section-note">กรอกข้อมูลตามรายการสำรวจครุภัณฑ์ของแต่ละฝ่าย อาคาร และห้อง</p>
+        </div>
       </div>
 
-      <div class="grid">
-        <input type="text" id="assetId" placeholder="รหัสครุภัณฑ์">
-        <input type="text" id="assetName" placeholder="ชื่อครุภัณฑ์" aria-label="ชื่อครุภัณฑ์">
-        <input type="text" id="assetDept" placeholder="สาขา" aria-label="สาขา">
-        <select id="assetStatus" aria-label="สถานะครุภัณฑ์">
-          <option value="พร้อมใช้งาน">พร้อมใช้งาน</option>
-          <option value="กำลังซ่อม">กำลังซ่อม</option>
-          <option value="จำหน่ายแล้ว">จำหน่ายแล้ว</option>
-        </select>
-        <button id="saveBtn" class="btn-primary" type="button">💾 บันทึกข้อมูล</button>
-        <button id="cancelEditBtn" class="cancel-edit-btn" type="button">❌ ยกเลิกการแก้ไข</button>
+      <div class="grid asset-form-grid">
+        <label class="field">
+          <span>เลขครุภัณฑ์</span>
+          <input type="text" id="assetId" placeholder="เช่น NPU-2569-001">
+        </label>
+
+        <label class="field">
+          <span>ชื่อครุภัณฑ์</span>
+          <input type="text" id="assetName" placeholder="เว้นว่างได้ถ้าไม่ทราบชื่อ" aria-label="ชื่อครุภัณฑ์">
+        </label>
+
+        <label class="field">
+          <span>สถานะ</span>
+          <select id="assetStatus" aria-label="สถานะครุภัณฑ์">
+            <option value="ปกติ">ปกติ</option>
+            <option value="แทงจำหน่าย">แทงจำหน่าย</option>
+            <option value="ชำรุด(รอจำหน่าย)">ชำรุด(รอจำหน่าย)</option>
+            <option value="ยังไม่มีเลข">ยังไม่มีเลข</option>
+            <option value="ชำรุด(รอซ่อม)">ชำรุด(รอซ่อม)</option>
+            <option value="โอนย้าย">โอนย้าย</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>ตึก</span>
+          <select id="assetBuilding" aria-label="ตึก">
+            <option value="ตึกบริหาร">ตึกบริหาร</option>
+            <option value="ตึกช่างยนต์">ตึกช่างยนต์</option>
+            <option value="ตึกอุตสาหกรรม">ตึกอุตสาหกรรม</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>ห้อง</span>
+          <select id="assetRoom" aria-label="ห้อง">
+            <option value="201">201</option>
+            <option value="202">202</option>
+            <option value="203">203</option>
+            <option value="204">204</option>
+            <option value="205">205</option>
+            <option value="206">206</option>
+            <option value="207">207</option>
+            <option value="208">208</option>
+            <option value="301">301</option>
+            <option value="302">302</option>
+            <option value="303">303</option>
+            <option value="304">304</option>
+            <option value="305">305</option>
+            <option value="306">306</option>
+            <option value="307">307</option>
+            <option value="308">308</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>สถานะรายงาน</span>
+          <select id="assetReportStatus" aria-label="สถานะรายงาน">
+            <option value="มีเลข และชื่อครุภัณฑ์">มีเลข และชื่อครุภัณฑ์</option>
+            <option value="มีเลข แต่ไม่ทราบชื่อครุภัณฑ์">มีเลข แต่ไม่ทราบชื่อครุภัณฑ์</option>
+            <option value="ไม่มีเลข และไม่ทราบชื่อครุภัณฑ์">ไม่มีเลข และไม่ทราบชื่อครุภัณฑ์</option>
+            <option value="ไม่มีเลข แต่ทราบชื่อครุภัณฑ์">ไม่มีเลข แต่ทราบชื่อครุภัณฑ์</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>ปีงบประมาณ</span>
+          <select id="assetFiscalYear" aria-label="ปีงบประมาณ">
+            <option value="ไม่ทราบปีงบประมาณ">ไม่ทราบปีงบประมาณ</option>
+            <option value="2570">2570</option>
+            <option value="2569">2569</option>
+            <option value="2568">2568</option>
+            <option value="2567">2567</option>
+            <option value="2566">2566</option>
+            <option value="2565">2565</option>
+            <option value="2564">2564</option>
+            <option value="2563">2563</option>
+            <option value="2562">2562</option>
+            <option value="2561">2561</option>
+            <option value="2560">2560</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>ฝ่าย</span>
+          <select id="assetDept" aria-label="ฝ่าย">
+            <option value="ฝ่ายบริการนักศึกษา">ฝ่ายบริการนักศึกษา</option>
+            <option value="ฝ่ายบริหาร">ฝ่ายบริหาร</option>
+            <option value="ฝ่ายวิชาการ">ฝ่ายวิชาการ</option>
+          </select>
+        </label>
+
+        <div class="form-actions">
+          <button id="saveBtn" class="btn-primary" type="button">💾 บันทึกข้อมูล</button>
+          <button id="cancelEditBtn" class="cancel-edit-btn" type="button">❌ ยกเลิกการแก้ไข</button>
+        </div>
       </div>
     </section>
 
     <section class="card">
       <div class="card-title">
         <div class="icon">📊</div>
-        <h2>สถานะครุภัณฑ์</h2>
+        <div>
+          <h2>สรุปสถานะครุภัณฑ์</h2>
+          <p class="section-note">แยกตามสถานะหลักของรายการทั้งหมด</p>
+        </div>
       </div>
 
-      <div class="status-grid">
-        <div class="status-card total"><h3>ครุภัณฑ์ทั้งหมด</h3><span id="totalCount">0</span></div>
-        <div class="status-card ok"><h3>พร้อมใช้งาน</h3><span id="okCount">0</span></div>
-        <div class="status-card repair"><h3>กำลังซ่อม</h3><span id="repairCount">0</span></div>
-        <div class="status-card sold"><h3>จำหน่ายแล้ว</h3><span id="soldCount">0</span></div>
-      </div>
+      <div class="status-grid status-grid-dynamic" id="statusGrid"></div>
     </section>
 
     <section class="card">
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search" placeholder="ค้นหาครุภัณฑ์...">
+        <input type="text" id="search" placeholder="ค้นหาเลข ชื่อ สถานะ ตึก ห้อง ปีงบประมาณ หรือฝ่าย...">
       </div>
     </section>
 
@@ -96,10 +181,14 @@
         <table>
           <thead>
             <tr>
-              <th>รหัสครุภัณฑ์</th>
+              <th>เลขครุภัณฑ์</th>
               <th>ชื่อครุภัณฑ์</th>
-              <th>หน่วยงาน</th>
               <th>สถานะ</th>
+              <th>ตึก</th>
+              <th>ห้อง</th>
+              <th>สถานะรายงาน</th>
+              <th>ปีงบประมาณ</th>
+              <th>ฝ่าย</th>
               <th>วันที่บันทึก</th>
               <th>จัดการ</th>
             </tr>

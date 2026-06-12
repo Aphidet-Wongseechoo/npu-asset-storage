@@ -165,6 +165,12 @@ button:hover {
   margin-bottom: 20px;
 }
 
+.section-note {
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
 .icon {
   width: 45px;
   height: 45px;
@@ -191,12 +197,31 @@ button:hover {
   gap: 15px;
 }
 
+.asset-form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field span {
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 input,
 select {
   width: 100%;
   padding: 14px;
   border-radius: 16px;
   border: 1px solid #ddd;
+  background: #fff;
+  color: #2f3440;
   outline: none;
   transition: .25s ease;
 }
@@ -207,42 +232,78 @@ select:focus {
   box-shadow: 0 0 0 4px rgba(242, 183, 5, .15);
 }
 
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+}
+
+.form-actions button {
+  min-width: 170px;
+}
+
 .status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
 }
 
+.status-grid-dynamic {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
 .status-card {
   background: white;
   border-radius: 22px;
-  padding: 24px;
+  padding: 20px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, .06);
   animation: fadeUp .7s ease both, glowPulse 3s ease-in-out infinite;
   transition: .25s ease;
 }
 
+.status-card h3 {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
 .status-card span {
   display: block;
   margin-top: 12px;
-  font-size: 38px;
+  color: #1f2937;
+  font-size: 34px;
   font-weight: bold;
 }
 
-.total {
+.status-card.total {
   border-left: 6px solid #f2b705;
 }
 
-.ok {
+.status-card.ok {
   border-left: 6px solid #22c55e;
 }
 
-.repair {
+.status-card.repair {
   border-left: 6px solid #f97316;
 }
 
-.sold {
+.status-card.sold {
   border-left: 6px solid #ef4444;
+}
+
+.status-card.pending-sale {
+  border-left: 6px solid #a855f7;
+}
+
+.status-card.no-code {
+  border-left: 6px solid #64748b;
+}
+
+.status-card.transfer {
+  border-left: 6px solid #0ea5e9;
 }
 
 .search-box {
@@ -317,6 +378,7 @@ select:focus {
 
 table {
   width: 100%;
+  min-width: 1180px;
   border-collapse: collapse;
 }
 
@@ -330,6 +392,7 @@ td {
   padding: 16px;
   text-align: center;
   border-bottom: 1px solid #eee;
+  vertical-align: middle;
 }
 
 .badge {
@@ -356,6 +419,47 @@ td {
 .red {
   background: #fee2e2;
   color: #dc2626;
+}
+
+.badge.ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge.sold {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.badge.pending-sale {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.badge.no-code {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.badge.repair {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.badge.transfer {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.dimmed-value {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.empty-state {
+  color: #64748b;
+  font-weight: 600;
+  padding: 34px 16px;
 }
 
 .action-btns {
@@ -491,6 +595,14 @@ td {
 
   .grid {
     grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
   }
 
   .status-grid {

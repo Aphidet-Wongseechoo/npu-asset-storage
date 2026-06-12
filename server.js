@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const fsp = require("fs/promises");
 const path = require("path");
+const { randomUUID } = require("crypto");
 
 const root = __dirname;
 const port = Number(process.env.PORT || 4173);
@@ -19,7 +20,32 @@ const contentTypes = {
   ".jpeg": "image/jpeg"
 };
 
-const allowedStatuses = new Set(["พร้อมใช้งาน", "กำลังซ่อม", "จำหน่ายแล้ว"]);
+const allowedStatuses = new Set([
+  "ปกติ",
+  "แทงจำหน่าย",
+  "ชำรุด(รอจำหน่าย)",
+  "ยังไม่มีเลข",
+  "ชำรุด(รอซ่อม)",
+  "โอนย้าย"
+]);
+
+const legacyStatusMap = {
+  "พร้อมใช้งาน": "ปกติ",
+  "กำลังซ่อม": "ชำรุด(รอซ่อม)",
+  "จำหน่ายแล้ว": "แทงจำหน่าย",
+  "โฮนย้าย": "โอนย้าย"
+};
+
+const allowedBuildings = new Set(["ตึกบริหาร", "ตึกช่างยนต์", "ตึกอุตสาหกรรม"]);
+const allowedRooms = new Set(["201", "202", "203", "204", "205", "206", "207", "208", "301", "302", "303", "304", "305", "306", "307", "308"]);
+const allowedReportStatuses = new Set([
+  "มีเลข และชื่อครุภัณฑ์",
+  "มีเลข แต่ไม่ทราบชื่อครุภัณฑ์",
+  "ไม่มีเลข และไม่ทราบชื่อครุภัณฑ์",
+  "ไม่มีเลข แต่ทราบชื่อครุภัณฑ์"
+]);
+const allowedFiscalYears = new Set(["ไม่ทราบปีงบประมาณ", "2570", "2569", "2568", "2567", "2566", "2565", "2564", "2563", "2562", "2561", "2560"]);
+const allowedDivisions = new Set(["ฝ่ายบริการนักศึกษา", "ฝ่ายบริหาร", "ฝ่ายวิชาการ"]);
 
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
@@ -29,13 +55,47 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
-function normalizeAsset(asset) {
+function cleanText(value) {
+  return String(value || "").trim();
+}
+
+function normalizeStatus(status) {
+  const cleanStatus = cleanText(status);
+  const mappedStatus = legacyStatusMap[cleanStatus] || cleanStatus;
+  return allowedStatuses.has(mappedStatus) ? mappedStatus : "ปกติ";
+}
+
+function normalizeOption(value, allowedValues, fallback) {
+  const cleanValue = cleanText(value);
+  return allowedValues.has(cleanValue) ? cleanValue : fallback;
+}
+
+function deriveReportStatus(asset) {
+  const hasId = Boolean(cleanText(asset.id));
+  const hasName = Boolean(cleanText(asset.name));
+
+  if (hasId && hasName) return "มีเลข และชื่อครุภัณฑ์";
+  if (hasId) return "มีเลข แต่ไม่ทราบชื่อครุภัณฑ์";
+  if (hasName) return "ไม่มีเลข แต่ทราบชื่อครุภัณฑ์";
+  return "ไม่มีเลข และไม่ทราบชื่อครุภัณฑ์";
+}
+
+function normalizeAsset(asset = {}) {
+  const id = cleanText(asset.id);
+  const name = cleanText(asset.name);
+  const uid = cleanText(asset.uid || id || randomUUID()) || randomUUID();
+
   return {
-    id: String(asset.id || "").trim(),
-    name: String(asset.name || "").trim(),
-    dept: String(asset.dept || "").trim(),
-    status: allowedStatuses.has(asset.status) ? asset.status : "พร้อมใช้งาน",
-    date: String(asset.date || "").trim()
+    uid,
+    id,
+    name,
+    status: normalizeStatus(asset.status),
+    building: normalizeOption(asset.building, allowedBuildings, "ตึกบริหาร"),
+    room: normalizeOption(asset.room, allowedRooms, "201"),
+    reportStatus: normalizeOption(asset.reportStatus, allowedReportStatuses, deriveReportStatus({ id, name })),
+    fiscalYear: normalizeOption(asset.fiscalYear, allowedFiscalYears, "ไม่ทราบปีงบประมาณ"),
+    dept: normalizeOption(asset.dept || asset.division, allowedDivisions, "ฝ่ายบริหาร"),
+    date: cleanText(asset.date)
   };
 }
 
@@ -55,7 +115,7 @@ async function readAssets() {
 
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(normalizeAsset).filter((asset) => asset.id) : [];
+    return Array.isArray(parsed) ? parsed.map(normalizeAsset).filter((asset) => asset.uid) : [];
   } catch {
     return [];
   }
@@ -68,7 +128,7 @@ async function writeAssets(assets) {
     throw new Error("Payload must be an array");
   }
 
-  const normalized = assets.map(normalizeAsset).filter((asset) => asset.id);
+  const normalized = assets.map(normalizeAsset).filter((asset) => asset.uid);
   const tempFile = `${dataFile}.tmp`;
   await fsp.writeFile(tempFile, `${JSON.stringify(normalized, null, 2)}\n`, "utf8");
   await fsp.rename(tempFile, dataFile);

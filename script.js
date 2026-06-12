@@ -1,11 +1,38 @@
 let data = [];
 let isAdmin = false;
-let editingId = null;
+let editingUid = null;
 
 const ADMIN_USER = "Aphidet";
 const ADMIN_PASS = "281251";
 const STORAGE_KEY = "npuAssets";
 const API_URL = "/api/assets";
+
+const STATUS_OPTIONS = [
+  { value: "ปกติ", label: "ปกติ", icon: "✅", theme: "ok" },
+  { value: "แทงจำหน่าย", label: "แทงจำหน่าย", icon: "📌", theme: "sold" },
+  { value: "ชำรุด(รอจำหน่าย)", label: "ชำรุด(รอจำหน่าย)", icon: "🧾", theme: "pending-sale" },
+  { value: "ยังไม่มีเลข", label: "ยังไม่มีเลข", icon: "🔎", theme: "no-code" },
+  { value: "ชำรุด(รอซ่อม)", label: "ชำรุด(รอซ่อม)", icon: "🛠️", theme: "repair" },
+  { value: "โอนย้าย", label: "โอนย้าย", icon: "↗️", theme: "transfer" }
+];
+
+const BUILDING_OPTIONS = ["ตึกบริหาร", "ตึกช่างยนต์", "ตึกอุตสาหกรรม"];
+const ROOM_OPTIONS = ["201", "202", "203", "204", "205", "206", "207", "208", "301", "302", "303", "304", "305", "306", "307", "308"];
+const REPORT_STATUS_OPTIONS = [
+  "มีเลข และชื่อครุภัณฑ์",
+  "มีเลข แต่ไม่ทราบชื่อครุภัณฑ์",
+  "ไม่มีเลข และไม่ทราบชื่อครุภัณฑ์",
+  "ไม่มีเลข แต่ทราบชื่อครุภัณฑ์"
+];
+const FISCAL_YEAR_OPTIONS = ["ไม่ทราบปีงบประมาณ", "2570", "2569", "2568", "2567", "2566", "2565", "2564", "2563", "2562", "2561", "2560"];
+const DIVISION_OPTIONS = ["ฝ่ายบริการนักศึกษา", "ฝ่ายบริหาร", "ฝ่ายวิชาการ"];
+
+const LEGACY_STATUS_MAP = {
+  "พร้อมใช้งาน": "ปกติ",
+  "กำลังซ่อม": "ชำรุด(รอซ่อม)",
+  "จำหน่ายแล้ว": "แทงจำหน่าย",
+  "โฮนย้าย": "โอนย้าย"
+};
 
 const overlay = document.getElementById("overlay");
 const user = document.getElementById("user");
@@ -19,23 +46,69 @@ const assetId = document.getElementById("assetId");
 const assetName = document.getElementById("assetName");
 const assetDept = document.getElementById("assetDept");
 const assetStatus = document.getElementById("assetStatus");
+const assetBuilding = document.getElementById("assetBuilding");
+const assetRoom = document.getElementById("assetRoom");
+const assetReportStatus = document.getElementById("assetReportStatus");
+const assetFiscalYear = document.getElementById("assetFiscalYear");
 const search = document.getElementById("search");
 const table = document.getElementById("table");
-const totalCount = document.getElementById("totalCount");
-const okCount = document.getElementById("okCount");
-const repairCount = document.getElementById("repairCount");
-const soldCount = document.getElementById("soldCount");
+const statusGrid = document.getElementById("statusGrid");
 const formTitle = document.getElementById("formTitle");
 const saveBtn = document.getElementById("saveBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 const storageStatus = document.getElementById("storageStatus");
+
+function createUid() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+
+  return `asset-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function normalizeStatus(status) {
+  const mappedStatus = LEGACY_STATUS_MAP[status] || status;
+  return STATUS_OPTIONS.some((option) => option.value === mappedStatus) ? mappedStatus : "ปกติ";
+}
+
+function normalizeOption(value, options, fallback) {
+  return options.includes(value) ? value : fallback;
+}
+
+function deriveReportStatus(item) {
+  const hasId = Boolean(String(item.id || "").trim());
+  const hasName = Boolean(String(item.name || "").trim());
+
+  if (hasId && hasName) return "มีเลข และชื่อครุภัณฑ์";
+  if (hasId) return "มีเลข แต่ไม่ทราบชื่อครุภัณฑ์";
+  if (hasName) return "ไม่มีเลข แต่ทราบชื่อครุภัณฑ์";
+  return "ไม่มีเลข และไม่ทราบชื่อครุภัณฑ์";
+}
+
+function normalizeAsset(item) {
+  const normalized = {
+    uid: String(item.uid || item.id || createUid()).trim(),
+    id: String(item.id || "").trim(),
+    name: String(item.name || "").trim(),
+    status: normalizeStatus(item.status),
+    building: normalizeOption(item.building, BUILDING_OPTIONS, "ตึกบริหาร"),
+    room: normalizeOption(item.room, ROOM_OPTIONS, "201"),
+    reportStatus: normalizeOption(item.reportStatus, REPORT_STATUS_OPTIONS, deriveReportStatus(item)),
+    fiscalYear: normalizeOption(item.fiscalYear, FISCAL_YEAR_OPTIONS, "ไม่ทราบปีงบประมาณ"),
+    dept: normalizeOption(item.dept || item.division, DIVISION_OPTIONS, "ฝ่ายบริหาร"),
+    date: String(item.date || "").trim()
+  };
+
+  if (!normalized.uid) normalized.uid = createUid();
+  return normalized;
+}
 
 function readLocalData() {
   const storedData = localStorage.getItem(STORAGE_KEY);
 
   try {
     const parsed = storedData ? JSON.parse(storedData) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map(normalizeAsset) : [];
   } catch {
     return [];
   }
@@ -60,8 +133,9 @@ async function fetchServerData() {
     throw new Error("รูปแบบข้อมูลจากเซิร์ฟเวอร์ไม่ถูกต้อง");
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(assets));
-  return assets;
+  const normalizedAssets = assets.map(normalizeAsset);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedAssets));
+  return normalizedAssets;
 }
 
 async function saveData() {
@@ -80,7 +154,7 @@ async function saveData() {
       throw new Error("ไม่สามารถบันทึกข้อมูลลงเซิร์ฟเวอร์ได้");
     }
 
-    data = await response.json();
+    data = (await response.json()).map(normalizeAsset);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     setStorageStatus("บันทึกบนเซิร์ฟเวอร์แล้ว", "ok");
     return true;
@@ -138,6 +212,17 @@ function login() {
   }
 }
 
+function resetFormValues() {
+  assetId.value = "";
+  assetName.value = "";
+  assetStatus.value = "ปกติ";
+  assetBuilding.value = "ตึกบริหาร";
+  assetRoom.value = "201";
+  assetReportStatus.value = "มีเลข และชื่อครุภัณฑ์";
+  assetFiscalYear.value = "ไม่ทราบปีงบประมาณ";
+  assetDept.value = "ฝ่ายบริหาร";
+}
+
 function logout() {
   isAdmin = false;
   adminForm.style.display = "none";
@@ -150,16 +235,55 @@ function logout() {
 }
 
 function cancelEdit() {
-  editingId = null;
-  assetId.value = "";
-  assetName.value = "";
-  assetDept.value = "";
-  assetStatus.value = "พร้อมใช้งาน";
+  editingUid = null;
+  resetFormValues();
   assetId.disabled = false;
 
   formTitle.innerText = "เพิ่มข้อมูลครุภัณฑ์";
   saveBtn.innerText = "💾 บันทึกข้อมูล";
   cancelEditBtn.style.display = "none";
+}
+
+function reportNeedsId(reportStatus) {
+  return reportStatus.startsWith("มีเลข");
+}
+
+function reportNeedsName(reportStatus) {
+  return reportStatus === "มีเลข และชื่อครุภัณฑ์" || reportStatus === "ไม่มีเลข แต่ทราบชื่อครุภัณฑ์";
+}
+
+function validateAssetInput(id, name, reportStatus) {
+  if (reportNeedsId(reportStatus) && !id) {
+    alert("สถานะรายงานนี้ต้องกรอกเลขครุภัณฑ์");
+    return false;
+  }
+
+  if (reportNeedsName(reportStatus) && !name) {
+    alert("สถานะรายงานนี้ต้องกรอกชื่อครุภัณฑ์");
+    return false;
+  }
+
+  return true;
+}
+
+function buildAssetPayload(existingItem = {}) {
+  const reportStatus = assetReportStatus.value;
+  const id = assetId.value.trim();
+  const name = assetName.value.trim();
+
+  return {
+    ...existingItem,
+    uid: existingItem.uid || createUid(),
+    id,
+    name,
+    status: assetStatus.value,
+    building: assetBuilding.value,
+    room: assetRoom.value,
+    reportStatus,
+    fiscalYear: assetFiscalYear.value,
+    dept: assetDept.value,
+    date: existingItem.date || new Date().toLocaleDateString("th-TH")
+  };
 }
 
 async function addItem() {
@@ -170,41 +294,27 @@ async function addItem() {
 
   const id = assetId.value.trim();
   const name = assetName.value.trim();
-  const dept = assetDept.value.trim();
-  const status = assetStatus.value;
+  const reportStatus = assetReportStatus.value;
 
-  if (!id || !name || !dept) {
-    alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-    return;
-  }
+  if (!validateAssetInput(id, name, reportStatus)) return;
 
-  if (editingId) {
-    const index = data.findIndex((item) => item.id === editingId);
+  if (id) {
+    const duplicate = data.some((item) => item.id === id && item.uid !== editingUid);
 
-    if (index !== -1) {
-      data[index] = {
-        ...data[index],
-        id,
-        name,
-        dept,
-        status
-      };
-    }
-  } else {
-    const exists = data.some((item) => item.id === id);
-
-    if (exists) {
-      alert("รหัสครุภัณฑ์นี้มีอยู่ในระบบแล้ว กรุณาใช้รหัสอื่น");
+    if (duplicate) {
+      alert("เลขครุภัณฑ์นี้มีอยู่ในระบบแล้ว กรุณาใช้เลขอื่น");
       return;
     }
+  }
 
-    data.push({
-      id,
-      name,
-      dept,
-      status,
-      date: new Date().toLocaleDateString("th-TH")
-    });
+  if (editingUid) {
+    const index = data.findIndex((item) => item.uid === editingUid);
+
+    if (index !== -1) {
+      data[index] = normalizeAsset(buildAssetPayload(data[index]));
+    }
+  } else {
+    data.push(normalizeAsset(buildAssetPayload()));
   }
 
   cancelEdit();
@@ -216,13 +326,13 @@ function searchItem() {
   render();
 }
 
-async function deleteItem(id) {
+async function deleteItem(uid) {
   if (!isAdmin) return;
   if (!confirm("คุณต้องการลบรายการนี้ใช่ไหม?")) return;
 
-  data = data.filter((item) => item.id !== id);
+  data = data.filter((item) => item.uid !== uid);
 
-  if (editingId === id) {
+  if (editingUid === uid) {
     cancelEdit();
   }
 
@@ -230,20 +340,24 @@ async function deleteItem(id) {
   render();
 }
 
-function editItem(id) {
+function editItem(uid) {
   if (!isAdmin) return;
 
-  const item = data.find((asset) => asset.id === id);
+  const item = data.find((asset) => asset.uid === uid);
   if (!item) return;
 
-  editingId = id;
+  editingUid = uid;
 
   assetId.value = item.id || "";
   assetName.value = item.name || "";
-  assetDept.value = item.dept || "";
-  assetStatus.value = item.status || "พร้อมใช้งาน";
+  assetStatus.value = normalizeStatus(item.status);
+  assetBuilding.value = normalizeOption(item.building, BUILDING_OPTIONS, "ตึกบริหาร");
+  assetRoom.value = normalizeOption(item.room, ROOM_OPTIONS, "201");
+  assetReportStatus.value = normalizeOption(item.reportStatus, REPORT_STATUS_OPTIONS, deriveReportStatus(item));
+  assetFiscalYear.value = normalizeOption(item.fiscalYear, FISCAL_YEAR_OPTIONS, "ไม่ทราบปีงบประมาณ");
+  assetDept.value = normalizeOption(item.dept, DIVISION_OPTIONS, "ฝ่ายบริหาร");
 
-  assetId.disabled = true;
+  assetId.disabled = false;
   formTitle.innerText = "แก้ไขข้อมูลครุภัณฑ์";
   saveBtn.innerText = "🔄 อัปเดตข้อมูล";
   cancelEditBtn.style.display = "inline-block";
@@ -251,28 +365,41 @@ function editItem(id) {
   adminForm.scrollIntoView({ behavior: "smooth" });
 }
 
+function getStatusMeta(status) {
+  return STATUS_OPTIONS.find((option) => option.value === normalizeStatus(status)) || STATUS_OPTIONS[0];
+}
+
 function createBadge(status) {
+  const meta = getStatusMeta(status);
   const badge = document.createElement("span");
-  badge.classList.add("badge");
-
-  if (status === "พร้อมใช้งาน") {
-    badge.classList.add("green");
-    badge.textContent = "🟢 พร้อมใช้งาน";
-  } else if (status === "กำลังซ่อม") {
-    badge.classList.add("orange");
-    badge.textContent = "🟠 กำลังซ่อม";
-  } else {
-    badge.classList.add("red");
-    badge.textContent = "🔴 จำหน่ายแล้ว";
-  }
-
+  badge.className = `badge ${meta.theme}`;
+  badge.textContent = `${meta.icon} ${meta.label}`;
   return badge;
 }
 
-function createTextCell(value) {
+function createTextCell(value, fallback = "") {
   const cell = document.createElement("td");
-  cell.textContent = value || "";
+  cell.textContent = value || fallback;
+
+  if (!value && fallback) {
+    cell.classList.add("dimmed-value");
+  }
+
   return cell;
+}
+
+function getSearchText(item) {
+  return [
+    item.id,
+    item.name,
+    item.status,
+    item.building,
+    item.room,
+    item.reportStatus,
+    item.fiscalYear,
+    item.dept,
+    item.date
+  ].join(" ").toLowerCase();
 }
 
 function getFilteredData() {
@@ -280,39 +407,70 @@ function getFilteredData() {
 
   if (!keyword) return data;
 
-  return data.filter((item) =>
-    String(item.id || "").toLowerCase().includes(keyword) ||
-    String(item.name || "").toLowerCase().includes(keyword) ||
-    String(item.dept || "").toLowerCase().includes(keyword)
-  );
+  return data.filter((item) => getSearchText(item).includes(keyword));
 }
 
 function renderStats() {
-  const ok = data.filter((item) => item.status === "พร้อมใช้งาน").length;
-  const repair = data.filter((item) => item.status === "กำลังซ่อม").length;
-  const sold = data.filter((item) => item.status === "จำหน่ายแล้ว").length;
+  statusGrid.innerHTML = "";
 
-  totalCount.innerText = data.length;
-  okCount.innerText = ok;
-  repairCount.innerText = repair;
-  soldCount.innerText = sold;
+  const summary = [
+    { label: "ครุภัณฑ์ทั้งหมด", icon: "📦", theme: "total", count: data.length },
+    ...STATUS_OPTIONS.map((option) => ({
+      label: option.label,
+      icon: option.icon,
+      theme: option.theme,
+      count: data.filter((item) => normalizeStatus(item.status) === option.value).length
+    }))
+  ];
+
+  summary.forEach((item) => {
+    const card = document.createElement("article");
+    card.className = `status-card ${item.theme}`;
+
+    const label = document.createElement("h3");
+    label.textContent = `${item.icon} ${item.label}`;
+
+    const count = document.createElement("span");
+    count.textContent = item.count;
+
+    card.append(label, count);
+    statusGrid.appendChild(card);
+  });
+}
+
+function renderEmptyRow() {
+  if (data.length > 0) return;
+
+  const row = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.colSpan = 10;
+  cell.className = "empty-state";
+  cell.textContent = "ยังไม่มีข้อมูลครุภัณฑ์";
+  row.appendChild(cell);
+  table.appendChild(row);
 }
 
 function render() {
+  data = data.map(normalizeAsset);
+
   const list = getFilteredData();
   table.innerHTML = "";
 
   list.forEach((item) => {
     const row = document.createElement("tr");
 
-    row.appendChild(createTextCell(item.id));
-    row.appendChild(createTextCell(item.name));
-    row.appendChild(createTextCell(item.dept));
+    row.appendChild(createTextCell(item.id, "ยังไม่มีเลข"));
+    row.appendChild(createTextCell(item.name, "ไม่ทราบชื่อครุภัณฑ์"));
 
     const statusCell = document.createElement("td");
     statusCell.appendChild(createBadge(item.status));
     row.appendChild(statusCell);
 
+    row.appendChild(createTextCell(item.building));
+    row.appendChild(createTextCell(item.room));
+    row.appendChild(createTextCell(item.reportStatus));
+    row.appendChild(createTextCell(item.fiscalYear));
+    row.appendChild(createTextCell(item.dept));
     row.appendChild(createTextCell(item.date));
 
     const actionCell = document.createElement("td");
@@ -326,14 +484,14 @@ function render() {
       editButton.type = "button";
       editButton.title = "แก้ไข";
       editButton.textContent = "✏️";
-      editButton.addEventListener("click", () => editItem(item.id));
+      editButton.addEventListener("click", () => editItem(item.uid));
 
       const deleteButton = document.createElement("button");
       deleteButton.className = "delete-btn";
       deleteButton.type = "button";
       deleteButton.title = "ลบ";
       deleteButton.textContent = "🗑️";
-      deleteButton.addEventListener("click", () => deleteItem(item.id));
+      deleteButton.addEventListener("click", () => deleteItem(item.uid));
 
       actionButtons.append(editButton, deleteButton);
       actionCell.appendChild(actionButtons);
@@ -348,6 +506,16 @@ function render() {
     table.appendChild(row);
   });
 
+  if (list.length === 0) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 10;
+    cell.className = "empty-state";
+    cell.textContent = search.value.trim() ? "ไม่พบข้อมูลที่ค้นหา" : "ยังไม่มีข้อมูลครุภัณฑ์";
+    row.appendChild(cell);
+    table.appendChild(row);
+  }
+
   renderStats();
 }
 
@@ -359,6 +527,12 @@ saveBtn.addEventListener("click", addItem);
 cancelEditBtn.addEventListener("click", cancelEdit);
 search.addEventListener("input", searchItem);
 
+assetReportStatus.addEventListener("change", () => {
+  if (assetReportStatus.value.includes("ไม่มีเลข") && !assetId.value.trim()) {
+    assetStatus.value = "ยังไม่มีเลข";
+  }
+});
+
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Enter") return;
 
@@ -369,12 +543,9 @@ document.addEventListener("keydown", (event) => {
     return;
   }
 
-  if (
-    document.activeElement === assetId ||
-    document.activeElement === assetName ||
-    document.activeElement === assetDept ||
-    document.activeElement === assetStatus
-  ) {
+  const formFields = [assetId, assetName, assetDept, assetStatus, assetBuilding, assetRoom, assetReportStatus, assetFiscalYear];
+
+  if (formFields.includes(document.activeElement)) {
     addItem();
   }
 });
