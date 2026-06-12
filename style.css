@@ -548,13 +548,13 @@ td {
   min-height: 56px;
   padding: 14px 20px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #16a34a, #0f766e);
+  background: linear-gradient(135deg, #38bdf8, #2563eb);
   color: #fff;
-  box-shadow: 0 16px 32px rgba(15, 118, 110, .28);
+  box-shadow: 0 16px 32px rgba(37, 99, 235, .28);
 }
 
 .add-asset-fab:hover {
-  box-shadow: 0 18px 38px rgba(15, 118, 110, .34);
+  box-shadow: 0 18px 38px rgba(37, 99, 235, .34);
 }
 
 .fab-icon {
