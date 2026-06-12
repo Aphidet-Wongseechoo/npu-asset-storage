@@ -59,6 +59,7 @@ const formTitle = document.getElementById("formTitle");
 const saveBtn = document.getElementById("saveBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 const storageStatus = document.getElementById("storageStatus");
+const activeFilterText = document.getElementById("activeFilterText");
 
 function createUid() {
   if (window.crypto && typeof window.crypto.randomUUID === "function") {
@@ -471,9 +472,17 @@ function renderStats() {
     card.addEventListener("click", () => {
       activeStatusFilter = item.value;
       render();
+      table.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     statusGrid.appendChild(card);
   });
+}
+
+function renderActiveFilterText(listLength) {
+  if (!activeFilterText) return;
+
+  const label = activeStatusFilter === "ทั้งหมด" ? "ครุภัณฑ์ทั้งหมด" : `สถานะ${activeStatusFilter}`;
+  activeFilterText.textContent = `กำลังแสดง: ${label} (${listLength} รายการ)`;
 }
 
 function renderEmptyRow() {
@@ -493,6 +502,7 @@ function render() {
 
   const list = getFilteredData();
   table.innerHTML = "";
+  renderActiveFilterText(list.length);
 
   list.forEach((item) => {
     const row = document.createElement("tr");

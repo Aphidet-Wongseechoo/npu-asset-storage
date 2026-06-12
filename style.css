@@ -356,6 +356,13 @@ select:focus {
   flex-wrap: wrap;
 }
 
+.active-filter-text {
+  margin-top: 4px;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .storage-status {
   display: inline-flex;
   align-items: center;
