@@ -40,6 +40,7 @@ const pass = document.getElementById("pass");
 const adminForm = document.getElementById("adminForm");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const openAssetFormBtn = document.getElementById("openAssetFormBtn");
 const submitLoginBtn = document.getElementById("submitLoginBtn");
 const closeLoginBtn = document.getElementById("closeLoginBtn");
 const assetId = document.getElementById("assetId");
@@ -198,10 +199,37 @@ function closeLogin() {
   overlay.setAttribute("aria-hidden", "true");
 }
 
+function showAssetForm() {
+  if (!isAdmin) return;
+  adminForm.style.display = "block";
+  openAssetFormBtn.style.display = "none";
+  adminForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  assetId.focus();
+}
+
+function hideAssetForm() {
+  adminForm.style.display = "none";
+
+  if (isAdmin) {
+    openAssetFormBtn.style.display = "inline-flex";
+  }
+}
+
+function openNewAssetForm() {
+  editingUid = null;
+  resetFormValues();
+  assetId.disabled = false;
+  formTitle.innerText = "เพิ่มข้อมูลครุภัณฑ์";
+  saveBtn.innerText = "💾 บันทึกข้อมูล";
+  cancelEditBtn.style.display = "inline-block";
+  showAssetForm();
+}
+
 function login() {
   if (user.value.trim() === ADMIN_USER && pass.value.trim() === ADMIN_PASS) {
     isAdmin = true;
-    adminForm.style.display = "block";
+    adminForm.style.display = "none";
+    openAssetFormBtn.style.display = "inline-flex";
     loginBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
     closeLogin();
@@ -226,6 +254,7 @@ function resetFormValues() {
 function logout() {
   isAdmin = false;
   adminForm.style.display = "none";
+  openAssetFormBtn.style.display = "none";
   loginBtn.style.display = "inline-block";
   logoutBtn.style.display = "none";
   user.value = "";
@@ -242,6 +271,7 @@ function cancelEdit() {
   formTitle.innerText = "เพิ่มข้อมูลครุภัณฑ์";
   saveBtn.innerText = "💾 บันทึกข้อมูล";
   cancelEditBtn.style.display = "none";
+  hideAssetForm();
 }
 
 function reportNeedsId(reportStatus) {
@@ -362,7 +392,7 @@ function editItem(uid) {
   saveBtn.innerText = "🔄 อัปเดตข้อมูล";
   cancelEditBtn.style.display = "inline-block";
 
-  adminForm.scrollIntoView({ behavior: "smooth" });
+  showAssetForm();
 }
 
 function getStatusMeta(status) {
@@ -521,6 +551,7 @@ function render() {
 
 loginBtn.addEventListener("click", openLogin);
 logoutBtn.addEventListener("click", logout);
+openAssetFormBtn.addEventListener("click", openNewAssetForm);
 submitLoginBtn.addEventListener("click", login);
 closeLoginBtn.addEventListener("click", closeLogin);
 saveBtn.addEventListener("click", addItem);

@@ -536,6 +536,44 @@ td {
   display: none;
 }
 
+.add-asset-fab {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #16a34a, #0f766e);
+  color: #fff;
+  box-shadow: 0 16px 32px rgba(15, 118, 110, .28);
+}
+
+.add-asset-fab:hover {
+  box-shadow: 0 18px 38px rgba(15, 118, 110, .34);
+}
+
+.fab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+  font-size: 16px;
+}
+
+.fab-text {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   header {
     background:
@@ -611,5 +649,26 @@ td {
 
   .login-box {
     width: 92%;
+  }
+
+  .add-asset-fab {
+    right: 16px;
+    bottom: 16px;
+    width: 56px;
+    height: 56px;
+    min-height: 56px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .fab-icon {
+    width: auto;
+    height: auto;
+    background: transparent;
+    font-size: 20px;
+  }
+
+  .fab-text {
+    display: none;
   }
 }
