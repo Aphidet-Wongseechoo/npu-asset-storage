@@ -1,6 +1,7 @@
 let data = [];
 let isAdmin = false;
 let editingUid = null;
+let activeStatusFilter = "ทั้งหมด";
 
 const ADMIN_USER = "Aphidet";
 const ADMIN_PASS = "281251";
@@ -200,7 +201,6 @@ function closeLogin() {
 }
 
 function showAssetForm() {
-  if (!isAdmin) return;
   adminForm.style.display = "block";
   openAssetFormBtn.style.display = "none";
   adminForm.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -209,10 +209,7 @@ function showAssetForm() {
 
 function hideAssetForm() {
   adminForm.style.display = "none";
-
-  if (isAdmin) {
-    openAssetFormBtn.style.display = "inline-flex";
-  }
+  openAssetFormBtn.style.display = "inline-flex";
 }
 
 function openNewAssetForm() {
@@ -221,6 +218,7 @@ function openNewAssetForm() {
   assetId.disabled = false;
   formTitle.innerText = "เพิ่มข้อมูลครุภัณฑ์";
   saveBtn.innerText = "💾 บันทึกข้อมูล";
+  cancelEditBtn.innerText = "❌ ปิดฟอร์ม";
   cancelEditBtn.style.display = "inline-block";
   showAssetForm();
 }
@@ -254,7 +252,7 @@ function resetFormValues() {
 function logout() {
   isAdmin = false;
   adminForm.style.display = "none";
-  openAssetFormBtn.style.display = "none";
+  openAssetFormBtn.style.display = "inline-flex";
   loginBtn.style.display = "inline-block";
   logoutBtn.style.display = "none";
   user.value = "";
@@ -270,6 +268,7 @@ function cancelEdit() {
 
   formTitle.innerText = "เพิ่มข้อมูลครุภัณฑ์";
   saveBtn.innerText = "💾 บันทึกข้อมูล";
+  cancelEditBtn.innerText = "❌ ปิดฟอร์ม";
   cancelEditBtn.style.display = "none";
   hideAssetForm();
 }
@@ -317,11 +316,6 @@ function buildAssetPayload(existingItem = {}) {
 }
 
 async function addItem() {
-  if (!isAdmin) {
-    alert("เฉพาะแอดมินเท่านั้น");
-    return;
-  }
-
   const id = assetId.value.trim();
   const name = assetName.value.trim();
   const reportStatus = assetReportStatus.value;
@@ -390,6 +384,7 @@ function editItem(uid) {
   assetId.disabled = false;
   formTitle.innerText = "แก้ไขข้อมูลครุภัณฑ์";
   saveBtn.innerText = "🔄 อัปเดตข้อมูล";
+  cancelEditBtn.innerText = "❌ ยกเลิกการแก้ไข";
   cancelEditBtn.style.display = "inline-block";
 
   showAssetForm();
@@ -435,17 +430,20 @@ function getSearchText(item) {
 function getFilteredData() {
   const keyword = search.value.trim().toLowerCase();
 
-  if (!keyword) return data;
-
-  return data.filter((item) => getSearchText(item).includes(keyword));
+  return data.filter((item) => {
+    const matchesStatus = activeStatusFilter === "ทั้งหมด" || normalizeStatus(item.status) === activeStatusFilter;
+    const matchesKeyword = !keyword || getSearchText(item).includes(keyword);
+    return matchesStatus && matchesKeyword;
+  });
 }
 
 function renderStats() {
   statusGrid.innerHTML = "";
 
   const summary = [
-    { label: "ครุภัณฑ์ทั้งหมด", icon: "📦", theme: "total", count: data.length },
+    { value: "ทั้งหมด", label: "ครุภัณฑ์ทั้งหมด", icon: "📦", theme: "total", count: data.length },
     ...STATUS_OPTIONS.map((option) => ({
+      value: option.value,
       label: option.label,
       icon: option.icon,
       theme: option.theme,
@@ -454,8 +452,14 @@ function renderStats() {
   ];
 
   summary.forEach((item) => {
-    const card = document.createElement("article");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = `status-card ${item.theme}`;
+    card.setAttribute("aria-pressed", String(activeStatusFilter === item.value));
+
+    if (activeStatusFilter === item.value) {
+      card.classList.add("active");
+    }
 
     const label = document.createElement("h3");
     label.textContent = `${item.icon} ${item.label}`;
@@ -464,6 +468,10 @@ function renderStats() {
     count.textContent = item.count;
 
     card.append(label, count);
+    card.addEventListener("click", () => {
+      activeStatusFilter = item.value;
+      render();
+    });
     statusGrid.appendChild(card);
   });
 }
@@ -541,7 +549,13 @@ function render() {
     const cell = document.createElement("td");
     cell.colSpan = 10;
     cell.className = "empty-state";
-    cell.textContent = search.value.trim() ? "ไม่พบข้อมูลที่ค้นหา" : "ยังไม่มีข้อมูลครุภัณฑ์";
+    if (search.value.trim()) {
+      cell.textContent = "ไม่พบข้อมูลที่ค้นหา";
+    } else if (activeStatusFilter !== "ทั้งหมด") {
+      cell.textContent = `ยังไม่มีข้อมูลสถานะ${activeStatusFilter}`;
+    } else {
+      cell.textContent = "ยังไม่มีข้อมูลครุภัณฑ์";
+    }
     row.appendChild(cell);
     table.appendChild(row);
   }
