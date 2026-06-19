@@ -51,9 +51,7 @@ body {
 }
 
 header {
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, .92), rgba(239, 247, 255, .82) 46%, rgba(219, 236, 255, .42)),
-    url("assets/header-bg.png") center right / cover no-repeat;
+  background: url("assets/header-bg.png") center right / cover no-repeat;
   padding: 18px 40px;
   display: flex;
   justify-content: space-between;
@@ -616,7 +614,7 @@ td {
   right: 26px;
   bottom: 26px;
   z-index: 60;
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   gap: 10px;
@@ -651,9 +649,7 @@ td {
 
 @media (max-width: 768px) {
   header {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(239, 247, 255, .88)),
-      url("assets/header-bg.png") center right / cover no-repeat;
+    background: url("assets/header-bg.png") center right / cover no-repeat;
     flex-direction: column;
     gap: 18px;
     padding: 22px 18px 18px;
