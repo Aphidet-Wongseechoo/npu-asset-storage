@@ -297,6 +297,11 @@ select:focus {
 }
 
 .status-card {
+  --status-color: #2563eb;
+  --status-soft: rgba(219, 234, 254, .98);
+  --status-shadow: rgba(37, 99, 235, .18);
+  --status-outline: rgba(37, 99, 235, .28);
+  --status-deep: #1e3a8a;
   width: 100%;
   background: linear-gradient(135deg, #ffffff, #f8fbff);
   border-radius: 8px;
@@ -314,20 +319,20 @@ select:focus {
 }
 
 .status-card.active {
-  outline: 3px solid rgba(37, 99, 235, .28);
+  outline: 3px solid var(--status-outline);
   background:
-    linear-gradient(135deg, rgba(219, 234, 254, .98), rgba(255, 255, 255, .96)),
+    linear-gradient(135deg, var(--status-soft), rgba(255, 255, 255, .96)),
     #f8fbff;
-  box-shadow: 0 16px 36px rgba(37, 99, 235, .18);
+  box-shadow: 0 16px 36px var(--status-shadow);
   transform: translateY(-4px);
 }
 
 .status-card.active h3 {
-  color: #1d4ed8;
+  color: var(--status-color);
 }
 
 .status-card.active span {
-  color: #1e3a8a;
+  color: var(--status-deep);
 }
 
 .status-card h3 {
@@ -345,30 +350,65 @@ select:focus {
 }
 
 .status-card.total {
+  --status-color: #f2b705;
+  --status-soft: rgba(254, 249, 195, .98);
+  --status-shadow: rgba(242, 183, 5, .22);
+  --status-outline: rgba(242, 183, 5, .30);
+  --status-deep: #854d0e;
   border-left: 6px solid #f2b705;
 }
 
 .status-card.ok {
+  --status-color: #22c55e;
+  --status-soft: rgba(220, 252, 231, .98);
+  --status-shadow: rgba(34, 197, 94, .20);
+  --status-outline: rgba(34, 197, 94, .30);
+  --status-deep: #166534;
   border-left: 6px solid #22c55e;
 }
 
 .status-card.repair {
+  --status-color: #f97316;
+  --status-soft: rgba(255, 237, 213, .98);
+  --status-shadow: rgba(249, 115, 22, .20);
+  --status-outline: rgba(249, 115, 22, .30);
+  --status-deep: #9a3412;
   border-left: 6px solid #f97316;
 }
 
 .status-card.sold {
+  --status-color: #ef4444;
+  --status-soft: rgba(254, 226, 226, .98);
+  --status-shadow: rgba(239, 68, 68, .20);
+  --status-outline: rgba(239, 68, 68, .30);
+  --status-deep: #991b1b;
   border-left: 6px solid #ef4444;
 }
 
 .status-card.pending-sale {
+  --status-color: #a855f7;
+  --status-soft: rgba(243, 232, 255, .98);
+  --status-shadow: rgba(168, 85, 247, .20);
+  --status-outline: rgba(168, 85, 247, .30);
+  --status-deep: #6b21a8;
   border-left: 6px solid #a855f7;
 }
 
 .status-card.no-code {
+  --status-color: #64748b;
+  --status-soft: rgba(226, 232, 240, .98);
+  --status-shadow: rgba(100, 116, 139, .20);
+  --status-outline: rgba(100, 116, 139, .30);
+  --status-deep: #334155;
   border-left: 6px solid #64748b;
 }
 
 .status-card.transfer {
+  --status-color: #0ea5e9;
+  --status-soft: rgba(224, 242, 254, .98);
+  --status-shadow: rgba(14, 165, 233, .20);
+  --status-outline: rgba(14, 165, 233, .30);
+  --status-deep: #075985;
   border-left: 6px solid #0ea5e9;
 }
 
