@@ -202,7 +202,6 @@ function closeLogin() {
 }
 
 function showAssetForm() {
-  if (!isAdmin) return;
   adminForm.style.display = "block";
   openAssetFormBtn.style.display = "none";
   adminForm.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -211,12 +210,10 @@ function showAssetForm() {
 
 function hideAssetForm() {
   adminForm.style.display = "none";
-  openAssetFormBtn.style.display = isAdmin ? "inline-flex" : "none";
+  openAssetFormBtn.style.display = "inline-flex";
 }
 
 function openNewAssetForm() {
-  if (!isAdmin) return;
-
   editingUid = null;
   resetFormValues();
   assetId.disabled = false;
@@ -256,7 +253,7 @@ function resetFormValues() {
 function logout() {
   isAdmin = false;
   adminForm.style.display = "none";
-  openAssetFormBtn.style.display = "none";
+  openAssetFormBtn.style.display = "inline-flex";
   loginBtn.style.display = "inline-block";
   logoutBtn.style.display = "none";
   user.value = "";
@@ -320,11 +317,6 @@ function buildAssetPayload(existingItem = {}) {
 }
 
 async function addItem() {
-  if (!isAdmin) {
-    alert("เฉพาะแอดมินเท่านั้น");
-    return;
-  }
-
   const id = assetId.value.trim();
   const name = assetName.value.trim();
   const reportStatus = assetReportStatus.value;
