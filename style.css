@@ -726,6 +726,28 @@ td {
     grid-template-columns: 1fr;
   }
 
+  .status-grid.status-grid-dynamic {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .status-grid-dynamic .status-card.total {
+    grid-column: 1 / -1;
+  }
+
+  .status-grid-dynamic .status-card {
+    min-height: 112px;
+    padding: 12px;
+  }
+
+  .status-grid-dynamic .status-card h3 {
+    font-size: 12px;
+  }
+
+  .status-grid-dynamic .status-card span {
+    font-size: 28px;
+  }
+
   .login-box {
     width: 92%;
   }
