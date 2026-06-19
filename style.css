@@ -52,7 +52,7 @@ body {
 
 header {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, .96), rgba(255, 247, 219, .88) 44%, rgba(255, 247, 219, .42)),
+    linear-gradient(90deg, rgba(255, 255, 255, .92), rgba(239, 247, 255, .82) 46%, rgba(219, 236, 255, .42)),
     url("assets/header-bg.png") center right / cover no-repeat;
   padding: 18px 40px;
   display: flex;
@@ -131,6 +131,45 @@ button:hover {
 .logout-btn {
   background: #dc2626;
   color: white;
+  display: none;
+}
+
+.header-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#loginBtn,
+#logoutBtn {
+  width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#loginBtn::before,
+#logoutBtn::before {
+  font-size: 18px;
+  line-height: 1;
+}
+
+#loginBtn::before {
+  content: "🔐";
+}
+
+#logoutBtn::before {
+  content: "🚪";
+}
+
+#logoutBtn {
   display: none;
 }
 
@@ -252,15 +291,20 @@ select:focus {
 }
 
 .status-grid-dynamic {
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.status-grid-dynamic .status-card.total {
+  grid-column: 1 / -1;
 }
 
 .status-card {
   width: 100%;
-  background: white;
-  border-radius: 22px;
+  background: linear-gradient(135deg, #ffffff, #f8fbff);
+  border-radius: 8px;
   border: 0;
-  padding: 20px;
+  min-height: 124px;
+  padding: 18px;
   text-align: left;
   box-shadow: 0 8px 25px rgba(0, 0, 0, .06);
   animation: fadeUp .7s ease both, glowPulse 3s ease-in-out infinite;
@@ -272,8 +316,20 @@ select:focus {
 }
 
 .status-card.active {
-  outline: 3px solid rgba(37, 99, 235, .22);
-  background: #f8fbff;
+  outline: 3px solid rgba(37, 99, 235, .28);
+  background:
+    linear-gradient(135deg, rgba(219, 234, 254, .98), rgba(255, 255, 255, .96)),
+    #f8fbff;
+  box-shadow: 0 16px 36px rgba(37, 99, 235, .18);
+  transform: translateY(-4px);
+}
+
+.status-card.active h3 {
+  color: #1d4ed8;
+}
+
+.status-card.active span {
+  color: #1e3a8a;
 }
 
 .status-card h3 {
@@ -596,7 +652,7 @@ td {
 @media (max-width: 768px) {
   header {
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 247, 219, .86)),
+      linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(239, 247, 255, .88)),
       url("assets/header-bg.png") center right / cover no-repeat;
     flex-direction: column;
     gap: 18px;
@@ -648,6 +704,10 @@ td {
 
   #logoutBtn::before {
     content: "🚪";
+  }
+
+  #logoutBtn {
+    display: none;
   }
 
   .grid {

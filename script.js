@@ -230,7 +230,7 @@ function login() {
     adminForm.style.display = "none";
     openAssetFormBtn.style.display = "inline-flex";
     loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline-block";
+    logoutBtn.style.display = "inline-flex";
     closeLogin();
     render();
     alert("เข้าสู่ระบบสำเร็จ");
@@ -253,8 +253,8 @@ function resetFormValues() {
 function logout() {
   isAdmin = false;
   adminForm.style.display = "none";
-  openAssetFormBtn.style.display = "inline-flex";
-  loginBtn.style.display = "inline-block";
+  openAssetFormBtn.style.display = "none";
+  loginBtn.style.display = "inline-flex";
   logoutBtn.style.display = "none";
   user.value = "";
   pass.value = "";
