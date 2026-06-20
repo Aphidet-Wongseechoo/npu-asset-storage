@@ -1,5 +1,5 @@
 {
-  "name": "npu-asset-storage",
+  "name": "equipment-storage-system",
   "version": "1.0.0",
   "description": "ระบบจัดเก็บข้อมูลครุภัณฑ์ออนไลน์พร้อมเซิร์ฟเวอร์บันทึกข้อมูล JSON",
   "main": "server.js",

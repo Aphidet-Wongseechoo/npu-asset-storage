@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: npu-asset-storage
+    name: equipment-storage-system
     runtime: node
     buildCommand: npm install
     startCommand: npm start

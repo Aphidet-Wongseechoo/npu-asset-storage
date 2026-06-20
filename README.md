@@ -1,4 +1,4 @@
-# Equipment storage system-NPU
+# Equipment storage system
 
 โปรเจกต์นี้เป็นเว็บ HTML/CSS/JavaScript พร้อมเซิร์ฟเวอร์ Node.js สำหรับบันทึกข้อมูลลงไฟล์ `data/assets.json`
 
